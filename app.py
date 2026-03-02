@@ -7,13 +7,14 @@ K_REF   = 4.8046e-5   # decay constant calibrated from batch data
 T_REF_F = 99.73       # reference temperature (Batch 1)
 DH      = 33_830      # benzene Henry's Law enthalpy (J/mol)
 R_GAS   = 8.314
-C0      = 1.4         # starting benzene (mg/L)
-C_LIM   = 0.5         # regulatory limit (mg/L)
+C0         = 1.4         # starting benzene (mg/L)
+C_LIM      = 0.5         # regulatory limit (mg/L)
+BUFFER_SCF = 2_000       # standard safety buffer added to model result
 
 BATCHES = [
-    ('Batch 1', 99.73,  21_430, '#4da6ff'),
-    ('Batch 2', 101.76, 22_358, '#ffaa44'),
-    ('Batch 3', 105.68, 25_280, '#44cc88'),
+    ('Batch 1', 99.73,  21_430 + BUFFER_SCF, '#4da6ff'),
+    ('Batch 2', 101.76, 22_358 + BUFFER_SCF, '#ffaa44'),
+    ('Batch 3', 105.68, 25_280 + BUFFER_SCF, '#44cc88'),
 ]
 
 def F_to_K(f):
@@ -36,7 +37,7 @@ st.set_page_config(
 st.title('💨 LA Sparging — SCFM Calculator')
 st.caption(
     f'Starting benzene C\u2080 = **{C0} mg/L**  →  '
-    f'Regulatory target = **{C_LIM} mg/L**  |  Henry\'s Law model'
+    f'Regulatory target = **{C_LIM} mg/L**  |  Henry\'s Law model  |  +2,000 SCF safety buffer'
 )
 st.divider()
 
@@ -60,22 +61,23 @@ with col_num:
 
 # Number input overrides slider if changed
 active_temp = temp_typed if temp_typed != temp else temp
-q = calc_scfm(active_temp)
+q_model     = calc_scfm(active_temp)
+q           = q_model + BUFFER_SCF
 
 st.divider()
 
 # ── Result ─────────────────────────────────────────────────────────────────────
 st.metric(
-    label=f'Required Cumulative SCFM at {active_temp:.1f} F',
+    label=f'Required Cumulative SCF at {active_temp:.1f} F  (incl. 2,000 SCF buffer)',
     value=f'{q:,.0f} SCF',
-    help='Total standard cubic feet of air needed to reduce benzene from 1.4 mg/L to 0.5 mg/L',
+    help=f'Model: {q_model:,.0f} SCF + 2,000 SCF safety buffer = {q:,.0f} SCF total',
 )
 
 st.divider()
 
 # ── Chart ──────────────────────────────────────────────────────────────────────
 T_arr = np.linspace(70, 150, 400)
-Q_arr = np.array([calc_scfm(t) for t in T_arr])
+Q_arr = np.array([calc_scfm(t) + BUFFER_SCF for t in T_arr])
 
 fig = go.Figure()
 
@@ -139,7 +141,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 # ── Reference table ────────────────────────────────────────────────────────────
 st.divider()
-st.caption('**Batch reference points** (from fitted model, C\u2080 = 1.4 mg/L):')
+st.caption('**Batch reference points** (from fitted model, C\u2080 = 1.4 mg/L, incl. 2,000 SCF buffer):')
 cols = st.columns(3)
 for i, (name, t_b, q_b, color) in enumerate(BATCHES):
     with cols[i]:
