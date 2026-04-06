@@ -128,10 +128,4 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# ── Reference table ────────────────────────────────────────────────────────────
-st.divider()
-st.caption('**Batch reference points** (from fitted model, C\u2080 = 1.4 mg/L, incl. 2,000 SCF buffer):')
-cols = st.columns(3)
-for i, (name, t_b, q_b, color) in enumerate(BATCHES):
-    with cols[i]:
-        st.metric(label=f'{name} — {t_b} F', value=f'{q_b:,} SCF')
+
