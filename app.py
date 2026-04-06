@@ -90,18 +90,7 @@ fig.add_trace(go.Scatter(
     hovertemplate='Temp: %{x:.1f} F<br>SCFM: %{y:,.0f} SCF<extra></extra>',
 ))
 
-# Batch reference dots
-for name, t_b, q_b, color in BATCHES:
-    fig.add_trace(go.Scatter(
-        x=[t_b], y=[q_b],
-        mode='markers+text',
-        name=f'{name} ({t_b} F)',
-        marker=dict(color=color, size=10, line=dict(color='white', width=1)),
-        text=[f'  {name}'],
-        textposition='middle right',
-        textfont=dict(size=10, color=color),
-        hovertemplate=f'{name}<br>Temp: {t_b} F<br>SCFM: {q_b:,} SCF<extra></extra>',
-    ))
+
 
 # User's current selection
 fig.add_trace(go.Scatter(
